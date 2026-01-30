@@ -1,0 +1,107 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Posts with Comments</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <style>
+        .post-card {
+            transition: transform 0.2s;
+        }
+        .post-card:hover {
+            transform: translateY(-5px);
+        }
+        .like-dislike-section {
+            margin: 15px 0;
+        }
+        .comments-section {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+        .comment-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .comment-text {
+            flex-grow: 1;
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-4">
+        <h1 class="mb-4">📝 Posts with AJAX Comments & Likes</h1>
+        
+        {% for post in posts %}
+        <div class="card mb-4 post-card shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title text-primary">{{ post.title }}</h5>
+                <p class="card-text">{{ post.content }}</p>
+                <small class="text-muted">Posted on {{ post.created_at|date:"F j, Y" }}</small>
+                
+                <div class="like-dislike-section">
+                    <button class="btn btn-outline-success like-button" data-id="{{ post.id }}">
+                        👍 Like
+                    </button>
+                    <button class="btn btn-outline-danger dislike-button" data-id="{{ post.id }}">
+                        👎 Dislike
+                    </button>
+                    <span class="badge bg-success ms-2">
+                        Likes: <span id="likes-count-{{ post.id }}">{{ post.likes }}</span>
+                    </span>
+                    <span class="badge bg-danger ms-2">
+                        Dislikes: <span id="dislikes-count-{{ post.id }}">{{ post.dislikes }}</span>
+                    </span>
+                </div>
+                
+                <div class="comments-section">
+                    <h6>
+                        💬 Comments 
+                        <span class="badge bg-primary" id="comments-count-{{ post.id }}">
+                            {{ post.comment_set.count }}
+                        </span>
+                    </h6>
+                    
+                    <ul id="comments-list-{{ post.id }}" class="list-group mb-3">
+                        {% for comment in post.comment_set.all %}
+                        <li class="list-group-item comment-item" id="comment-{{ comment.id }}">
+                            <span class="comment-text">{{ comment.text }}</span>
+                            <button class="btn btn-sm btn-outline-danger delete-comment" 
+                                    data-id="{{ comment.id }}">
+                                Delete
+                            </button>
+                        </li>
+                        {% empty %}
+                        <li class="list-group-item text-muted">No comments yet. Be the first to comment!</li>
+                        {% endfor %}
+                    </ul>
+                    
+                    <div class="input-group">
+                        <input type="text" 
+                               class="form-control comment-input" 
+                               placeholder="Write your comment here..."
+                               data-post-id="{{ post.id }}">
+                        <button class="btn btn-primary add-comment" 
+                                data-post-id="{{ post.id }}">
+                            Add Comment
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="alert alert-info">
+            No posts available. Create some posts in the admin panel first!
+        </div>
+        {% endfor %}
+    </div>
+
+    <script src="{% static 'js/comments.js' %}"></script>
+</body>
+</html>
